@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>金硕珍2026国内生日大屏解锁 · 数据大屏</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+:root{
+  --bg:#080b18; --bg2:#0d1226; --panel:rgba(18,24,48,.72); --line:rgba(120,160,255,.18);
+  --txt:#e8eeff; --sub:#8fa3cc; --gold:#ffd77a; --rose:#ff6f9c; --cyan:#4fd8ff; --red:#ff5b5b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  background:radial-gradient(1200px 700px at 15% -10%,#1b2450 0%,transparent 60%),
+             radial-gradient(1000px 600px at 90% 0%,#3a1b3f 0%,transparent 55%),
+             var(--bg);
+  color:var(--txt);min-height:100vh;padding:16px 20px 28px;
+}
+.hd{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;
+    padding:6px 4px 16px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.hd h1{font-size:26px;letter-spacing:2px;font-weight:800;
+  background:linear-gradient(92deg,var(--gold),var(--rose) 55%,var(--cyan));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.hd .sub{font-size:12px;color:var(--sub);margin-top:6px;letter-spacing:1px}
+.hd .stamp{font-size:12px;color:var(--sub);text-align:right;line-height:1.7}
+.hd .stamp b{color:var(--gold);font-size:13px}
+
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}
+.kpi{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+     padding:14px 16px;overflow:hidden;backdrop-filter:blur(6px)}
+.kpi::after{content:'';position:absolute;left:0;top:0;width:3px;height:100%;
+  background:linear-gradient(180deg,var(--gold),transparent)}
+.kpi .k{font-size:12px;color:var(--sub);letter-spacing:1px}
+.kpi .v{font-size:30px;font-weight:800;margin-top:6px;font-variant-numeric:tabular-nums;
+  background:linear-gradient(180deg,#fff,#9fc0ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi .n{font-size:11px;color:var(--sub);margin-top:4px}
+.kpi.gold .v{background:linear-gradient(180deg,#fff2cf,var(--gold));-webkit-background-clip:text;background-clip:text}
+.kpi.rose .v{background:linear-gradient(180deg,#ffd7e4,var(--rose));-webkit-background-clip:text;background-clip:text}
+.kpi.cyan .v{background:linear-gradient(180deg,#d5f4ff,var(--cyan));-webkit-background-clip:text;background-clip:text}
+.kpi.gold::after{background:linear-gradient(180deg,var(--gold),transparent)}
+.kpi.rose::after{background:linear-gradient(180deg,var(--rose),transparent)}
+.kpi.cyan::after{background:linear-gradient(180deg,var(--cyan),transparent)}
+
+.grid{display:grid;gap:12px;margin-bottom:12px}
+.row1{grid-template-columns:1.35fr 1fr}
+.row2{grid-template-columns:1fr 1fr 1fr}
+.row3{grid-template-columns:1fr}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;backdrop-filter:blur(6px)}
+.card h3{font-size:13px;font-weight:700;letter-spacing:1.5px;color:#cddcff;margin-bottom:8px;display:flex;
+  align-items:center;gap:8px}
+.card h3::before{content:'';width:3px;height:13px;border-radius:2px;background:linear-gradient(180deg,var(--rose),var(--cyan))}
+.chart{width:100%}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{position:sticky;top:0;background:#111a3a;color:#b9cbff;text-align:left;padding:9px 8px;
+  font-weight:600;letter-spacing:.5px;border-bottom:1px solid var(--line);z-index:2;white-space:nowrap}
+tbody td{padding:8px;border-bottom:1px solid rgba(120,160,255,.09);vertical-align:top;color:#dbe6ff}
+tbody tr:hover{background:rgba(90,140,255,.09)}
+.tag{display:inline-block;padding:1px 7px;border-radius:20px;font-size:11px;border:1px solid;white-space:nowrap}
+.t124{color:#ffb0c8;border-color:rgba(255,110,155,.5);background:rgba(255,110,155,.12)}
+.t1128{color:#ffd77a;border-color:rgba(255,215,122,.5);background:rgba(255,215,122,.12)}
+.tnone{color:#8fa3cc;border-color:rgba(143,163,204,.4);background:rgba(143,163,204,.1)}
+.cntpill{font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}
+.addr{color:#93a6cc;font-size:11.5px;line-height:1.5}
+.mall{font-weight:600;color:#fff}
+.city{color:#9fb4e0;font-size:11.5px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+input[type=search],select{background:#0e1530;border:1px solid var(--line);color:var(--txt);
+  border-radius:8px;padding:7px 11px;font-size:12.5px;outline:none;font-family:inherit}
+input[type=search]{flex:1;min-width:180px}
+input[type=search]::placeholder{color:#68789c}
+select{cursor:pointer}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:5px 11px;border-radius:20px;border:1px solid var(--line);background:rgba(90,140,255,.08);
+  font-size:12px;cursor:pointer;color:#b9cbff;transition:.15s;user-select:none}
+.chip:hover{background:rgba(90,140,255,.2)}
+.chip.on{background:linear-gradient(92deg,rgba(255,215,122,.25),rgba(255,111,156,.25));
+  border-color:rgba(255,215,122,.6);color:#fff;font-weight:600}
+.scroll{max-height:430px;overflow:auto;border-radius:8px}
+.scroll::-webkit-scrollbar{width:8px;height:8px}
+.scroll::-webkit-scrollbar-thumb{background:rgba(120,160,255,.28);border-radius:8px}
+.scroll::-webkit-scrollbar-track{background:rgba(120,160,255,.06)}
+.meta{font-size:11.5px;color:var(--sub);margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.foot{text-align:center;color:#5d6d92;font-size:11.5px;margin-top:20px;line-height:1.9}
+@media(max-width:1180px){.row1,.row2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <div>
+    <h1>金硕珍 2026 国内生日大屏解锁</h1>
+    <div class="sub">SEOKJIN BIRTHDAY LED SCREEN UNLOCK · 全国应援大屏数据总览</div>
+  </div>
+  <div class="stamp">
+    数据源：<b>大屏已解锁管理专⑴.xlsx</b><br>
+    统计口径：<b>218</b> 家商场 / 各省份合并单元格已还原
+  </div>
+</div>
+
+<div class="kpis" id="kpis"></div>
+
+<div class="grid row1">
+  <div class="card">
+    <h3>省份商场数量排行（TOP 18）</h3>
+    <div id="cProv" class="chart" style="height:330px"></div>
+  </div>
+  <div class="card">
+    <h3>省份大屏数量分布（TOP 15）</h3>
+    <div id="cProvScreen" class="chart" style="height:330px"></div>
+  </div>
+</div>
+
+<div class="grid row2">
+  <div class="card">
+    <h3>上屏日期分布</h3>
+    <div id="cDate" class="chart" style="height:255px"></div>
+  </div>
+  <div class="card">
+    <h3>城市商场数量 TOP 12</h3>
+    <div id="cCity" class="chart" style="height:255px"></div>
+  </div>
+  <div class="card">
+    <h3>大屏数量 TOP 12 商场</h3>
+    <div id="cMall" class="chart" style="height:255px"></div>
+  </div>
+</div>
+
+<div class="grid row3">
+  <div class="card">
+    <h3>商场明细清单</h3>
+    <div class="toolbar">
+      <input type="search" id="q" placeholder="搜索商场 / 城市 / 省份 / 地址…">
+      <select id="selProv"></select>
+      <select id="selDate">
+        <option value="">全部上屏日期</option>
+        <option value="12.4">12.4</option>
+        <option value="11.28">11.28</option>
+        <option value="未标注">未标注</option>
+      </select>
+      <div class="chips" id="sortChips">
+        <div class="chip on" data-sort="cnt">按屏数</div>
+        <div class="chip" data-sort="prov">按省份</div>
+        <div class="chip" data-sort="date">按日期</div>
+      </div>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr>
+          <th style="width:60px">#</th><th style="width:78px">省份</th><th style="width:76px">城市</th>
+          <th style="width:190px">商场</th><th style="width:92px">上屏日期</th><th style="width:130px">亮屏时间</th>
+          <th style="width:104px">轮播频率</th><th style="width:64px">屏数</th>
+          <th>大屏位置 / 地址</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="meta">
+      <span id="cntInfo"></span>
+      <span>共 <b id="sumCnt" style="color:var(--gold)">0</b> 块屏</span>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  数据统计口径说明：省份/城市为 Excel 合并单元格，已按向下填充还原；<br>
+  3 条被 Excel 误识别为时间的「大屏尺寸」已还原为分辨率；空白字段按“未标注”处理，不做推测。
+</div>
+
+<script>
+const DATA = [{"prov":"浙江","city":"杭州","mall":"未来科技城万达广场","date":"12.4-12.5","time":"10:00-22:00","freq":"3min/次","pos":"一号门一楼中庭","addr":"余杭区仓前街道创景路与联创街交汇处(创景路地铁站 B3口直达)","size":"1920*1080","cnt":1},{"prov":"浙江","city":"杭州","mall":"杭州余杭万达广场","date":"12.4","time":"10:00-22:00","freq":"不确定","pos":"小中庭","addr":"余杭区文一西路1888号","size":"5120x1152","cnt":1},{"prov":"浙江","city":"杭州","mall":"加州阳光·开元广场","date":"11.28","time":"10:00-21:30","freq":"7-10min/次","pos":"一楼室内中庭大屏","addr":"浙江省杭州市萧山区金城路333号(金鸡路地铁站B2口步行80米)","size":"3840*640","cnt":1},{"prov":"浙江","city":"杭州","mall":"滨江开元广场","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"浙江","city":"杭州","mall":"Pick-Dol星趣场（in77店）","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"浙江","city":"杭州","mall":"杭州七堡招商花园城","date":"11.28","time":"10:00-22:00","freq":"5-8min/次","pos":"①商场L1中庭大屏②L1-L4电梯屏（4","addr":"杭州市上城区九和路583号杭州七堡招商花园城","size":"7040*2240 1080*1920","cnt":5},{"prov":"浙江","city":"杭州","mall":"Pick-Dol星趣场（大悦城店）","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"浙江","city":"杭州","mall":"湖滨88","date":"12.4-12.8","time":"10:00-22:00","freq":"全天轮播","pos":"全场大屏（橱窗外屏+中庭大屏+中庭立柱屏+北侧屏+2号门环型厅五屏+CHAYA大屏）","addr":"浙江省杭州市上城区平海路124号","size":"1号门橱窗外屏：2808 X 832 px\n1楼中庭大屏：2432 X1152 px\n1楼中庭立柱：1920x 1080 px (4张480 x 1080 px拼一张）\n1楼北屏：1920 x 640 px\n\n2号门环形屏（图片）：\n左右侧上部 分辨率1440*800px\n左右侧下部 分辨率1440*800px\n顶部  分辨率 1760*1200px\n\n1F服务台大屏：16:9（竖屏1080*1920px）","cnt":9},{"prov":"浙江","city":"杭州","mall":"杭州五福天虹购物中心","date":"12.4","time":"10:00-21:30","freq":"180次","pos":"B座1楼中庭","addr":"浙江省杭州市上城区新塘路108号","size":"886*1920","cnt":1},{"prov":"浙江","city":"宁波","mall":"宁波鄞州宝龙广场","date":"12.4","time":"10:00-22:00","freq":"当天确定","pos":"①LG层大屏②A馆L1","addr":"宁波市鄞州区钱湖北路199号","size":"1920x1080\r1920x1080","cnt":2},{"prov":"浙江","city":"宁波","mall":"中海环宇城","date":"11.28","time":"10:00-21:30","freq":"1min/次","pos":"① A馆户外LED②C馆户外LED③B座B1中庭舞台","addr":"浙江省宁波市鄞州区江东南路689号","size":"A：1296*2592 B：1920*1080 C：920*1360","cnt":3},{"prov":"浙江","city":"宁波","mall":"iPN鱼轮厂","date":"12.4","time":"17：00-24：00","freq":"150次/天","pos":"室外六折叠大屏","addr":"宁波市鄞州区甬江大道177号","size":"6328*2016","cnt":1},{"prov":"浙江","city":"绍兴","mall":"绍兴国金大悦城","date":"12.4","time":"10:00-22:00","freq":"当天确定","pos":"场内主中庭瀑布屏","addr":"绍兴市越城区东街57号(城市广场地铁站G口步行440米)","size":"1024*5504","cnt":1},{"prov":"浙江","city":"绍兴","mall":"绍兴迎恩门银泰","date":"12.4","time":"10:00-21:30","freq":"5-10min/轮","pos":"外屏","addr":"浙江省绍兴市越城区银泰购物中心（霞西路7号）","size":"1920*1080","cnt":1},{"prov":"浙江","city":"绍兴","mall":"绍兴上虞万达广场","date":"11.28","time":"10:00-22:00","freq":"3-5min/次","pos":"2号门外广场","addr":"绍兴市上虞区百官街道高铁新城称山北路399号","size":"800*600","cnt":1},{"prov":"浙江","city":"衢州","mall":"衢州鹿鸣岛银泰in park","date":"12.4","time":"10:00-21:00","freq":"5min/次","pos":"1号门喷泉广场","addr":"衢州市柯城区九华中大道489号","size":"1920*1080","cnt":1},{"prov":"浙江","city":"金华","mall":"金华金瓯万达广场","date":"12.4","time":"10:00-21:30","freq":"随机","pos":"1号门","addr":"浙江省金华市金东区金瓯路1428号","size":"1920*1080","cnt":1},{"prov":"浙江","city":"金华","mall":"义乌印悦城","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"浙江","city":"金华","mall":"金华江北银泰百货","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"浙江","city":"金华","mall":"金华义乌万达广场","date":"12.4","time":"11:00-22:00","freq":"5min/次","pos":"1号门外场","addr":"浙江省义乌市稠江街道新科路9号","size":"1920*1080","cnt":1},{"prov":"浙江","city":"丽水","mall":"丽水龙泉万达广场","date":"12.4","time":"10:00-22:00","freq":"4-6min/轮","pos":"1号门外场","addr":"浙江省丽水市龙泉市龙渊街道东茶路118号","size":"1920*1080","cnt":1},{"prov":"浙江","city":"嘉兴","mall":"嘉兴嘉善银泰百货","date":"12.4","time":"10:00-21:30","freq":"3-5min/次","pos":"①内大屏②外广场西侧三个大屏","addr":"浙江省嘉兴市嘉善县嘉善大道399号","size":"内：1280*960 外：480*576","cnt":4},{"prov":"浙江","city":"嘉兴","mall":"嘉兴南湖万达广场","date":"12.4","time":"10:00-22:00","freq":"12min/次","pos":"中庭三面屏","addr":"嘉兴市广益路1108号","size":"1920*1080","cnt":1},{"prov":"浙江","city":"温州","mall":"温州瓯海银泰百货","date":"11.28","time":"10:00-22:00","freq":"3min/次","pos":"一号门门口","addr":"瓯海大道 1299 号","size":"14500*4500","cnt":1},{"prov":"浙江","city":"温州","mall":"温州乐清银泰百货","date":"12.4","time":"10:00-22:00","freq":"2-8min/次","pos":"①A座外屏②B座大屏","addr":"浙江省温州市乐清市城南街道宴海西路777号","size":"A：2496*672 B：1344*800","cnt":2},{"prov":"浙江","city":"温州","mall":"温州平阳万达广场","date":"12.4","time":"10:00-21:30","freq":"2-4min/次","pos":"舞台大屏","addr":"浙江省温州市平阳县鳌江镇车站大道88号","size":"1920*1080","cnt":1},{"prov":"浙江","city":"温州","mall":"银泰百货温州世贸店","date":"12.4","time":"10:00-22:00","freq":"随机","pos":"①B馆负一楼②B馆3F客服中心门口","addr":"荷花路156号","size":"①1056*600\r②1350*3040","cnt":2},{"prov":"浙江","city":"湖州","mall":"湖州吴兴万达广场","date":"12.4","time":"10:00-22:00","freq":"4min/轮","pos":"二号门外广场（霸王茶姬旁）","addr":"湖州市吴兴区大升路899号","size":"1920x1080","cnt":1},{"prov":"浙江","city":"台州","mall":"台州椒江宝龙广场","date":"12.4","time":"10:00-22:00","freq":"当天确定","pos":"①一号门外广场②三号中庭","addr":"台州市椒江区葭沚街道星洲社区黄海公路5号","size":"1000x560\r3432x936","cnt":3},{"prov":"宁夏","city":"银川","mall":"兴庆万达广场","date":"12.4-12.5","time":"10：00-22：00","freq":"4-5min/次","pos":"(横)一号门外广场 (竖)二号中庭","addr":"兴庆区宝湖东路和丽景街东","size":"竖屏：1536*6912\n横屏：1920*1080","cnt":2},{"prov":"广东","city":"广州","mall":"广州白云万达广场","date":"12.4","time":"10:30-22:00","freq":"5-7min/次","pos":"1号门进去看见优衣库左转，直走达到南中庭","addr":"广州市白云区云城东路501号","size":"3840*1080","cnt":1},{"prov":"广东","city":"广州","mall":"广州百脑汇","date":"12.4","time":"10:00-21:00","freq":"1min/次","pos":"①一楼东门平台电视机②一楼正门平台广告机③负一东门户外LED屏④负一西门户外LED屏","addr":"广州市天河区天河路598号(广州地铁3号线岗顶站C出口)","size":"正门电视机：1920X1080\n正门广告机：1080X1920\n西门LED：2176X320\n东门LED：1920X340","cnt":4},{"prov":"广东","city":"广州","mall":"广州友谊商店（国金店）","date":"11.28","time":"10:00-22:00","freq":"3-4min/次","pos":"2楼大屏","addr":"广东省广州市天河区珠江西路5号","size":"2560*640","cnt":1},{"prov":"广东","city":"广州","mall":"星趣场（时尚天河商业广场店）","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"广东","city":"广州","mall":"广州新塘万达广场","date":"11.28","time":"10:00-21:30","freq":"3-4min/次","pos":"1号门外","addr":"广东省广州市增城区新塘镇顺欣社区新福路9号","size":"1920*1080","cnt":1},{"prov":"广东","city":"深圳","mall":"深圳大悦城","date":"12.4-12.6","time":"10:00-21:30","freq":"不确定","pos":"LG层星光道","addr":"广东省深圳市宝安区前进一路与创业二路交汇处","size":"2112*2688","cnt":1},{"prov":"广东","city":"深圳","mall":"深圳德丰·圆方购物中心","date":"11.28","time":"10:00-21:00","freq":"4-5min/次","pos":"1号门","addr":"深圳市宝安区宝安中心新湖路和甲岸路交界（1号线新安站C出口）","size":"3200*1800","cnt":1},{"prov":"广东","city":"深圳","mall":"深圳宝安天虹购物中心","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"广东","city":"深圳","mall":"Pick-Dol（深圳次元9号店）","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"广东","city":"深圳","mall":"深圳龙城万科里","date":"12.4","time":"10:00-22:00","freq":"15min/次","pos":"星光中庭LED大屏","addr":"深圳市龙岗区中心城3999号","size":"4032*1080","cnt":1},{"prov":"广东","city":"深圳","mall":"潮悦汇购物中心","date":"12.4","time":"10:00-22:00(场内)18:00-22:00(场外)","freq":"70-120次 55-70次","pos":"(竖)户外LED大屏(横)场内电视屏","addr":"深圳市宝安区松岗街道天云路72号（地铁6号线溪头站D出口）","size":"外屏：1200*2400\n竖屏：1920*1080","cnt":2},{"prov":"广东","city":"东莞","mall":"东莞旗云广场","date":"12.4","time":"12：00-22：30","freq":"12min/次","pos":"MALL-1号门上方 & MALL中庭","addr":"东莞火车站旁石龙侧","size":"5400*1872（1008+4320）","cnt":2},{"prov":"广东","city":"东莞","mall":"海德·汇一城","date":"11.28","time":"10:00-22:00","freq":"2-3min/次","pos":"海德·汇一城三区1号门中庭（阿嬷手作旁）","addr":"东莞市南城街道鸿福路200号","size":"1920*1080","cnt":1},{"prov":"广东","city":"东莞","mall":"东莞厚街万达广场","date":"12.4","time":"10:00-22:00","freq":"4min/轮","pos":"一号门进入往前走一号中庭","addr":"广东省东莞市东莞市康乐北路6号","size":"3840*1080","cnt":1},{"prov":"广东","city":"江门","mall":"江门江海万达广场","date":"12.4","time":"11:00-21:00","freq":"8min/轮","pos":"江门江海万达KKV上方","addr":"广东省江门市江海区金星路217号","size":"1920*1080","cnt":1},{"prov":"广东","city":"江门","mall":"江门蓬江幸福里","date":"12.4","time":"10:00-21:00","freq":"不定","pos":"舞台中庭","addr":"广东省江门市蓬江区迎宾大道中116号","size":"960*512","cnt":1},{"prov":"广东","city":"汕头","mall":"合胜广场","date":"12.4","time":"11:00-22:00","freq":"5-10min/轮","pos":"肯德基上方外大屏（内大屏如中庭当天无活动的话，会同步一起上）","addr":"广东省汕头市潮南区峡山街道广汕公路123号","size":"1920*1080","cnt":2},{"prov":"广东","city":"佛山","mall":"佛山九鼎国际儿童城","date":"12.4","time":"14:00-22:00","freq":"20s-2min随机轮播","pos":"①东广场商场大屏②东广场舞台大屏","addr":"佛山禅城季华六路3号九鼎国际儿童城（佛山地铁3号线季华六路A出口）","size":"1600*900","cnt":2},{"prov":"广东","city":"中山","mall":"中山石岐万象汇","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"广东","city":"珠海","mall":"珠海高新宝龙广场","date":"12.4","time":"10:00-22:00","freq":"当天确定","pos":"①6号门外3D裸眼大屏②1号中庭","addr":"珠海市香洲区港湾大道与金峰北路交汇处东侧","size":"5568*2112\r2288*1040","cnt":2},{"prov":"江西","city":"南昌","mall":"南昌大悦城","date":"11.28","time":"10：00-22：00","freq":"8min/轮","pos":"①南昌大悦城 1号门侧②南昌大悦城全场lcd70个","addr":"江西省南昌市西湖区抚生南路666号","size":"3840*2160\r1920*1080","cnt":71},{"prov":"江西","city":"南昌","mall":"南昌百银次元中心1号","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"江西","city":"南昌","mall":"南昌地铁大厦天虹购物中心","date":"12.4","time":"10:00-22:00","freq":"不定","pos":"①负二楼地铁接驳口大屏②电子导屏16个③公区吊挂10个④一楼中庭大屏","addr":"江西省南昌市红谷滩区卫东街道丰和中大道818号","size":"负二楼：2496*1152\r电子导视频:16:9和9:16\r公区吊挂：1920*360\r一楼中庭：3200*1024","cnt":28},{"prov":"江西","city":"景德镇","mall":"景德镇宝龙广场","date":"12.4","time":"10:00-22:00","freq":"不定","pos":"室外广场户外屏","addr":"江西省景德镇市昌江区纬二路景德镇宝龙城","size":"1920*1080","cnt":1},{"prov":"江西","city":"赣州","mall":"步步高新天地","date":"12.4","time":"10:00-22:00","freq":"不确定","pos":"1号门外大屏","addr":"赣州市章贡区红旗大道33号","size":"1920*1080","cnt":1},{"prov":"江西","city":"抚州","mall":"抚州临川万达广场","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"江西","city":"九江","mall":"九江濂溪万达广场","date":"12.4","time":"11:30-21:00","freq":"4min/轮","pos":"2号门外广场","addr":"江西省九江市濂溪区德化路666号","size":"1920*1080","cnt":1},{"prov":"江西","city":"上饶","mall":"上饶吾悦广场","date":"11.28","time":"10:00-22:00","freq":"当天确定","pos":"①外屏②内屏","addr":"江西省上饶市广信区凤凰西大道与旭日南大道交汇处","size":"内2700*1000\r外1920*1080","cnt":2},{"prov":"江西","city":"上饶","mall":"上饶天虹购物中心","date":"12.4","time":"10:00-22:00","freq":"当天确定","pos":"一楼三号中庭","addr":"江西省上饶市信州区凤凰东大道89号","size":"1920x1080","cnt":1},{"prov":"山东","city":"青岛","mall":"青岛未来城万科广场","date":"12.4","time":"10:00-22:00","freq":"当天确定","pos":"①户外3D大屏②室内中庭冰屏","addr":"山东省青岛市市北区四流南路66号丙(中心医院地铁站B口步行90米)","size":"（短边880+弧边480++长边2400）+781高\r4150*2200","cnt":2},{"prov":"山东","city":"青岛","mall":"龙湖青岛胶州天街","date":"12.4","time":"10:00-22:00","freq":"当天确定","pos":"①中庭内屏②三号门外屏","addr":"山东省青岛市胶州市海尔大道与香港路交汇处","size":"1920*1066（加logo 1640*900","cnt":2},{"prov":"山东","city":"济南","mall":"济南龙湖北宸天街","date":"11.28","time":"10:00-22:00","freq":"15s/220-360次","pos":"全场大屏（55","addr":"济南市历城区工业北路17887号","size":"1️⃣1568*864\r2️⃣1920*1080\r3️⃣3880*2160\r4️⃣2688*1536\r5️⃣2160*3840","cnt":55},{"prov":"山东","city":"济南","mall":"济南印象城","date":"12.4","time":"10:00-22:00（中午12-14休屏）","freq":"3min/次","pos":"1号门外广场","addr":"济南市历城区花园路136号7号楼","size":"1920x1080","cnt":1},{"prov":"山东","city":"淄博","mall":"淄博鑫马吾悦广场","date":"12.4","time":"10:00-22:00","freq":"2min/次","pos":"5号门入口处","addr":"淄博市张店区华光路与重庆路路口288号","size":"1920*1080","cnt":1},{"prov":"山东","city":"滨州","mall":"滨州滨城万达广场","date":"12.4-12.6","time":"10:00-22:00","freq":"10min/轮","pos":"2号门外广场","addr":"山东省滨州市滨城区黄河十二路890号","size":"1920*1080","cnt":1},{"prov":"山东","city":"潍坊","mall":"潍坊寿光万达广场","date":"12.4","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"山东","city":"济宁","mall":"金宇漫城","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"山东","city":"德州","mall":"德州澳德乐百货","date":"12.4","time":"10:00-21:30","freq":"10min/轮","pos":"18号门外/一楼圆天井","addr":"德城区东风东路1899号","size":"9:11/6:15","cnt":2},{"prov":"山东","city":"烟台","mall":"烟台大悦城","date":"11.28","time":"10:00-21:30","freq":"100-150次","pos":"4楼中庭","addr":"烟台市芝罘区海港路25号阳光100A座","size":"1920*1080","cnt":1},{"prov":"山东","city":"烟台","mall":"龙湖烟台龙口天街","date":"12.4","time":"10:00-21:30","freq":"2-3min/次","pos":"①户外大屏②中庭大屏","addr":"烟台市龙口市港城大道与莱山路交汇处","size":"外屏：2688*1536\r内屏：6400*3360（图片）或1920*1080（视频））","cnt":2},{"prov":"江苏","city":"无锡","mall":"无锡三阳百盛","date":"12.4-12.5","time":"10:00-21:30","freq":"2min/次","pos":"4F扶梯横屏 8F天幕屏","addr":"无锡市梁溪区崇安寺街道人民路127号三阳百盛1F总台(costa旁)","size":"4F：5760*1080\r8F：1080*1920","cnt":2},{"prov":"江苏","city":"无锡","mall":"无锡梁溪万达广场","date":"12.4","time":"10:00-22:00","freq":"3min/次","pos":"4楼飞天梯大屏","addr":"江苏省无锡市梁溪区广南路388号","size":"1920*2176","cnt":1},{"prov":"江苏","city":"无锡","mall":"无锡江南大悦城","date":"11.28","time":"10:00-22:00","freq":"200次","pos":"小钻体入口","addr":"江苏省无锡市滨湖区蠡湖大道与高浪路交叉口","size":"1920x1080","cnt":1},{"prov":"江苏","city":"南京","mall":"南京Sparkle耀市","date":"11.28","time":"10:00-22:00","freq":"200次","pos":"Sparkle耀市曲面屏","addr":"南京市玄武区红山路12号Sparkle耀市","size":"2112*448","cnt":1},{"prov":"江苏","city":"南京","mall":"龙湖南京江北天街","date":"11.28","time":"10:00-22:00","freq":"1-3min/次","pos":"① 室内瀑布屏3②室外大屏1③地铁地面屏1④地铁横屏1（横版","addr":"南京市浦口区文景路99号（地铁三号线星火路站2A口直达）","size":"地铁➕外屏：1920*1080 地铁屏：2816*3220 中庭瀑布未知","cnt":6},{"prov":"江苏","city":"南京","mall":"南京IST同尚天地","date":"12.4","time":"10:00-22:00（户外18:30-22:00）","freq":"全天轮播","pos":"①1F主入口②中庭大屏③户外点阵大屏","addr":"南京市玄武区新街口街道中山路100号","size":"①1280*2400②874*2000③768*200","cnt":3},{"prov":"江苏","city":"南京","mall":"南京同曦万象城","date":"12.4","time":"10:30-19:00","freq":"不定","pos":"百货大楼","addr":"南京市江宁区双龙大道1351号同曦万尚城","size":"1920*1080","cnt":1},{"prov":"江苏","city":"南京","mall":"南京城北万象汇","date":"12.4-12.6","time":"10:00-21:00","freq":"不固定","pos":"①A馆室外LED②B馆室外LED③A馆室内LED④B馆室内LED","addr":"南京市栖霞区栖霞大道106,108号","size":"①2125*1250②2100*1225③4480*2496","cnt":4},{"prov":"江苏","city":"南京","mall":"南京中央商场（新街口店）","date":"11.28-11.29","time":"10:00-22:00","freq":"未知","pos":"一中庭","addr":"南京市秦淮区中山南路79号","size":"1120*400","cnt":1},{"prov":"江苏","city":"南京","mall":"南京建邺万达广场","date":"12.4","time":"10:00-22:00","freq":"8min/轮","pos":"南京建邺万达广场B门进入可见","addr":"南京市建邺区莫愁湖街道江东中路98号南京建邺万达广场","size":"4096*1152","cnt":1},{"prov":"江苏","city":"南京","mall":"Pick-Dol星趣场（水游城店）","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"江苏","city":"南京","mall":"南京江宁宝龙广场","date":"12.4","time":"10:00-22:00","freq":"当天确定","pos":"①户外写字楼大屏②一楼中庭室内大屏","addr":"南京市江宁区麒麟街道青西社区丹霞街169号","size":"3926x1280\r1728x960","cnt":2},{"prov":"江苏","city":"南通","mall":"南通启东吾悦","date":"12.4","time":"10:00-21:00","freq":"6min/次","pos":"1号门外屏","addr":"江苏省南通市启东市建设南路88号吾悦广场","size":"1920x1080","cnt":1},{"prov":"江苏","city":"徐州","mall":"徐州印象城","date":"12.4","time":"10:00-21:00","freq":"不低于120次","pos":"①1号门外广场②电梯屏③导视屏（共30","addr":"江苏省徐州市云龙区鑫城路与和平大道交叉口118号","size":"1920*1080\r1080*1920","cnt":32},{"prov":"江苏","city":"扬州","mall":"扬州邗江万达广场","date":"12.4","time":"11:00-21:30","freq":"4min/轮","pos":"2号门外","addr":"江苏省扬州市邗江区邗江中路302号","size":"1920x1080","cnt":1},{"prov":"江苏","city":"苏州","mall":"苏州高铁吾悦广场","date":"11.28","time":"10:00-21:30","freq":"10-15min/轮","pos":"1号门中庭、南广场蔚来充电桩上方","addr":"相城区相城大道3188号","size":"1920*1080","cnt":2},{"prov":"江苏","city":"苏州","mall":"苏州昆山吾悦广场","date":"12.4","time":"10:00-22:00","freq":"4min/轮","pos":"①一楼圆厅横屏②五楼竖屏","addr":"苏州昆山长江南路99号","size":"1920*1080\r1080*1920","cnt":2},{"prov":"江苏","city":"苏州","mall":"苏州张家港万达广场","date":"12.4","time":"10:30-21:00","freq":"8min/轮","pos":"1号门外大屏","addr":"苏州市张家港市杨舍镇人民东路20号","size":"1920*1080","cnt":1},{"prov":"江苏","city":"苏州","mall":"Pick-Dol星趣场（星悦汇店）","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"江苏","city":"苏州","mall":"吴江天虹购物中心","date":"12.4","time":"10:00-22:00","freq":"8min/轮","pos":"外广场（商场西南角，即星巴克与肯德基的上方）","addr":"苏州市吴江区中山南路1818号","size":"1920x1080","cnt":1},{"prov":"江苏","city":"盐城","mall":"盐城亭湖爱情海","date":"12.4","time":"10:00-21:00","freq":"3-5min/次","pos":"场内四块LED","addr":"盐城市亭湖区开放大道150号","size":"1920*1080","cnt":4},{"prov":"江苏","city":"泰州","mall":"泰州金鹰购物中心","date":"12.4","time":"9:00-21:30","freq":"120次/天","pos":"外广场","addr":"泰州市东进东路18号","size":"1696*960","cnt":1},{"prov":"江苏","city":"连云港","mall":"连云港锦绣汇","date":"12.4","time":"16:00-21:00","freq":"3min/轮","pos":"1楼中庭大屏","addr":"江苏省连云港市海州区郁洲北路36号","size":"1920*1080","cnt":1},{"prov":"江苏","city":"镇江","mall":"镇江苏宁广场","date":"12.4","time":"10:00-21:30","freq":"3min/次","pos":"3F大屏","addr":"江苏省镇江市京口区解放路111号","size":"3456*960","cnt":1},{"prov":"江苏","city":"淮安","mall":"淮安中央城","date":"12.4","time":"10:00-21:00","freq":"不固定","pos":"一楼中庭","addr":"江苏省淮安市清江浦区淮海东路142号","size":"2816*1408","cnt":1},{"prov":"江苏","city":"常州","mall":"常州武进吾悦广场","date":"11.28-11.29","time":"10:00-21:30","freq":"5-8min/次","pos":"①2号门进门处②2号门北面上方③东区一到五楼扶梯旁导视屏共11个","addr":"武进区湖塘镇武宜北路188号","size":"1. 1280x1984px(竖版）30s/ 1920x1080px横板30s/导视屏 1⃣1366x3840px(竖版图片）导视屏2⃣ 1080x1920(竖版图片）图片静置15s","cnt":13},{"prov":"江苏","city":"常州","mall":"常州武进万达广场","date":"12.4","time":"10:00-21:00","freq":"4-6min/轮","pos":"2号门内中庭","addr":"江苏省常州市武进区花园街301号","size":"1920*1080","cnt":1},{"prov":"河南","city":"郑州","mall":"郑州中原万达广场","date":"12.4","time":"10:00-22:00","freq":"10min/轮","pos":"内屏一楼东庭","addr":"中原区中原路171号","size":"5120x1152","cnt":1},{"prov":"河南","city":"郑州","mall":"郑州瀚海海尚Mall","date":"11.28","time":"10:00-22:00","freq":"8min/轮","pos":"①喷泉广场②南广场","addr":"河南省郑州市金水区丰庆路东风路交叉口西北角","size":"1920*976","cnt":2},{"prov":"河南","city":"郑州","mall":"郑州正弘汇","date":"12.4","time":"10:00-22:00","freq":"无统计","pos":"BF-7F电梯屏","addr":"河南省郑州市高新区科学大道正弘汇（地铁8号线银屏路D口）","size":"2160*3840 3840*2160","cnt":50},{"prov":"河南","city":"焦作","mall":"焦作解放万达广场","date":"12.4","time":"10:00-22:00","freq":"8-10min/次","pos":"1号门外场","addr":"焦作市解放区丰收路口","size":"1080*720","cnt":1},{"prov":"河南","city":"平顶山","mall":"平顶山万达广场","date":"12.4","time":"10:00-22:00","freq":"8min/轮","pos":"一号门外广场","addr":"平顶山市卫东区建设路899号","size":"836*622","cnt":1},{"prov":"河南","city":"南阳","mall":"南阳摩根吾悦广场","date":"12.4","time":"10:00-22:00","freq":"不低于60次","pos":"一楼中厅","addr":"南阳市人民南路与建设中路交汇处摩根吾悦广场","size":"1920*6300","cnt":1},{"prov":"河南","city":"南阳","mall":"南阳苑城万达广场","date":"11.28","time":"10:00-22:00","freq":"4min/轮","pos":"①3号门②5号门","addr":"南阳市宛城区明山路与孔明大道交叉口","size":"","cnt":2},{"prov":"河南","city":"南阳","mall":"南阳玉都万达坊","date":"12.4","time":"9:00-11:00 15:00-21:00","freq":"4min/轮","pos":"商场一号门外大屏","addr":"南阳市宛城区孔明大道与医圣祠路交叉口","size":"1080*1920","cnt":1},{"prov":"河南","city":"信阳","mall":"信阳西亚城","date":"12.4","time":"11：00-22：00","freq":"5-7min/次","pos":"1号门南大屏/2号门北大屏","addr":"信阳市西亚城","size":"南广场弧形屏幕：4120×1200 横版\n北广场平面屏幕：2040×1200 横版","cnt":2},{"prov":"河南","city":"信阳","mall":"信阳百花园","date":"11.28","time":"10:00-12:00 15:30-20:50","freq":"4min内三次","pos":"百花园东门","addr":"信阳市新七大道百花园","size":"左：8560*3280 右：4320*3280 合计：12880*3280","cnt":1},{"prov":"河南","city":"洛阳","mall":"洛阳涧西万达广场","date":"12.4","time":"10:00-22:00","freq":"8-10min/次","pos":"洛阳涧西万达南广场","addr":"洛阳市涧西区辽宁路与丽新路交叉口","size":"1920x1080","cnt":1},{"prov":"北京","city":"北京","mall":"西铁营万达","date":"12.4","time":"10:00-22:00","freq":"3min/次","pos":"b1果栗园上方","addr":"北京丰台西铁营万达","size":"3200*1800","cnt":1},{"prov":"北京","city":"北京","mall":"合景·摩方购物中心","date":"12.4","time":"11:00-21：00","freq":"160次","pos":"中庭冰屏（6面）LED+4、5层LED","addr":"北京市东城区外大街1-13附近(崇文门地铁站H西南口旁)","size":"冰屏：768x1152px（竖面），1152x1152px(顶底）；4/5层LED：1920x1152px（横版）","cnt":3},{"prov":"北京","city":"北京","mall":"Pick-Dol星趣场（华威店）","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"北京","city":"北京","mall":"Pick-Dol星趣场（喜悦店）","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"北京","city":"北京","mall":"十里汇","date":"12.4","time":"10:00-21:00","freq":"60-100次","pos":"十里汇1F中庭","addr":"北京市朝阳区东南三环十里河地铁站A口右转300米十里汇","size":"1792*2176","cnt":1},{"prov":"陕西","city":"西安","mall":"西安际华生活广场","date":"11.28","time":"10:00-22:00","freq":"2-5min/次","pos":"中厅竖屏","addr":"陕西省西安市雁塔区昆明路20号(汉城南路地铁站B口步行210米)","size":"600*1400","cnt":1},{"prov":"陕西","city":"西安","mall":"龙湖西安未央天街","date":"11.28","time":"10:00-22:00","freq":"不确定","pos":"①商场户外LED大屏②商场内屏","addr":"陕西省西安市未央区景云路","size":"外：3160*3840 内：1080*1920","cnt":2},{"prov":"陕西","city":"西安","mall":"西安长安万科广场","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"陕西","city":"西安","mall":"西安大明宫万达广场","date":"12.4","time":"10:00-22:00","freq":"3-5min/次","pos":"2号门内安德玛上方","addr":"陕西省西安市未央区西安大明宫万达广场","size":"5120x1000（曲面屏）","cnt":1},{"prov":"陕西","city":"宝鸡","mall":"京东电器宝鸡城旗","date":"12.4","time":"10:00-20:00","freq":"2-3min/次","pos":"舞台大屏","addr":"陕西省宝鸡市渭滨区天同国际A座19号","size":"1920*1080","cnt":1},{"prov":"陕西","city":"渭南","mall":"渭南临渭万达广场","date":"12.4","time":"10:00-22:00","freq":"不确定","pos":"①一号门外屏②内屏二号门入口","addr":"渭南市临渭区渭河大街与仓程路十字西北角","size":"外1920*1080；内3840*1080","cnt":2},{"prov":"天津","city":"天津","mall":"天津和平大悦城","date":"12.4","time":"10:00-22:00","freq":"3-5min/次","pos":"和平大悦城南京路主入口，星巴克旁","addr":"天津市和平区南京路189号(营口道地铁站B3口旁)","size":"单个：960*1760 四连：3840*1760","cnt":1},{"prov":"天津","city":"天津","mall":"天津和平印象城","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"天津","city":"天津","mall":"天津南开大悦城","date":"11.27-11.29","time":"10:00-22:00","freq":"5-10min/轮","pos":"天津南开大悦城北区一层麦田广场(近lululemon)","addr":"天津市南开区南门外大街2-6号","size":"4031*896","cnt":1},{"prov":"天津","city":"天津","mall":"天津西青万达广场","date":"12.4","time":"10:00-21:30","freq":"2-5min/次","pos":"2号门室内中庭（瑞幸方向扶梯前）/1号门肯德基方向室外墙上","addr":"天津市西青区万达广场","size":"256*1200\r1920*1080","cnt":2},{"prov":"四川","city":"泸州","mall":"步步高泸州新天地","date":"12.4","time":"10:00-21:00","freq":"不低于120次","pos":"一号门中庭","addr":"四川省泸州市龙马潭区蜀泸大道一段32号","size":"1920x1080","cnt":1},{"prov":"四川","city":"攀枝花","mall":"攀枝花东区万达广场","date":"12.4","time":"10:00-22:00","freq":"6min/次","pos":"3号门外","addr":"四川省攀枝花市东区炳草岗街道三线大道北段123号","size":"1920*1080","cnt":1},{"prov":"四川","city":"宜宾","mall":"宜宾万象汇","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":1},{"prov":"四川","city":"自贡","mall":"自贡万达广场","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"四川","city":"绵阳","mall":"绵阳上马百盛广场","date":"12.4","time":"10:00-22:00","freq":"不固定","pos":"一楼场内三个屏","addr":"四川省绵阳科技城新区创业大道中段10号","size":"L1长屏:1250*2338（左右留200\rL1曲面屏：4609*2200\rL1小屏:1400*350","cnt":3},{"prov":"四川","city":"德阳","mall":"德阳旌阳万达广场","date":"12.4","time":"10:00-22:00","freq":"12min/轮","pos":"1号门外广场","addr":"四川省德阳市旌阳区庐山北路一段8号","size":"1920*1080","cnt":1},{"prov":"四川","city":"成都","mall":"成都万象城","date":"12.4","time":"10:00-22:30","freq":"100-150次","pos":"A馆外屏","addr":"四川省成都市成华区双庆路8号万象城F4层(双桥路地铁站出入口步行290米)","size":"1800*960","cnt":1},{"prov":"四川","city":"成都","mall":"龙湖成都东安天街","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"四川","city":"成都","mall":"龙湖成都北城天街","date":"待定","time":"10:00-22:00","freq":"当天确定","pos":"喇叭花广场","addr":"四川省成都市金牛区五块石西路1号(五块石地铁站D口步行140米)","size":"992*528","cnt":1},{"prov":"四川","city":"成都","mall":"成都天府招商花园城","date":"12.4","time":"18:00-22:00","freq":"5min/次","pos":"①1号门3D大屏②南馆中庭大屏③北馆中庭大屏","addr":"双流区福州路西段与嘉州路交叉口西北220米","size":"①5480*1792②③2560*1014","cnt":3},{"prov":"四川","city":"成都","mall":"成都世茂广场","date":"11.28","time":"10:00-22:00","freq":"30次/小时","pos":"大中庭","addr":"成都龙泉驿区金枫路333号","size":"2688*1088","cnt":1},{"prov":"四川","city":"成都","mall":"Pick-Dol星趣场（来福士店）","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"四川","city":"成都","mall":"龙湖成都时代天街","date":"12.4","time":"10:00-22:00","freq":"5-8min/次","pos":"A馆外大屏","addr":"成都市郫都区合作路89号龙湖成都时代天街","size":"3840*2160","cnt":1},{"prov":"山西","city":"太原","mall":"太原双塔汇商业广场","date":"11.28","time":"10:00-22:00","freq":"10-15min/次","pos":"①室内中庭负一层②户外折叠大屏","addr":"太原市迎泽区双塔汇商业广场","size":"1152*2688 2608*1920","cnt":2},{"prov":"山西","city":"太原","mall":"太原龙城万达广场","date":"12.4","time":"10:00-22:00","freq":"4-8min/次","pos":"商场1号门室外屏；小米中庭曲面屏；场内连廊大屏；电梯及扶梯lcd屏37块","addr":"山西省太原市小店区龙城大街130号太原龙城万达广场","size":"曲面屏：3840*1080\r连廊+室外：1920*1080\r电梯lcd：1080*1920","cnt":40},{"prov":"山西","city":"晋城","mall":"晋城万达广场","date":"12.4","time":"10:00-22:00","freq":"4min/轮","pos":"2号门室内冰屏2块","addr":"山西省晋城市城区白水东街与文峰路交汇东南侧","size":"1920*1080","cnt":2},{"prov":"重庆","city":"重庆","mall":"重庆铜梁万达广场","date":"12.4","time":"10:00-22:00","freq":"当天确定","pos":"1号门外广场","addr":"重庆市铜梁区东城街道中兴路788号","size":"660*760","cnt":1},{"prov":"重庆","city":"重庆","mall":"重庆云端之眼高空观景平台","date":"11.28","time":"9:30-22:30","freq":"5min/次","pos":"重庆云端之眼高空观景平台1楼（小什字5A出口）","addr":"重庆市渝中区解放碑街道联合国际大厦1楼","size":"高264厘米 、宽488厘米 、 小边框宽度4厘米","cnt":1},{"prov":"重庆","city":"重庆","mall":"重庆巴南万达广场","date":"12.4","time":"10:30-22:00","freq":"4min/轮","pos":"1号中庭","addr":"重庆市巴南区渝南大道297号","size":"3840*1080","cnt":1},{"prov":"上海","city":"上海","mall":"上海长宁ARTPARK大融城","date":"12.4","time":"10:00-22:00","freq":"全天轮播","pos":"L1外屏，广告机17台","addr":"上海市长宁区淞虹路377号","size":"4306*2464\r610*1210","cnt":18},{"prov":"上海","city":"上海","mall":"上海崇明万达广场","date":"11.28","time":"10:30-21:30","freq":"10min/轮","pos":"1号门入口处","addr":"上海市崇明区城桥镇崇明大道8388号","size":"2250*540","cnt":1},{"prov":"上海","city":"上海","mall":"上海TPY中心","date":"11.27-11.29","time":"10:00-21:00","freq":"1-3min/次","pos":"①B1-B2楼层LED②L2楼层LED③L3楼层LED","addr":"上海市徐汇区肇嘉浜路1117号","size":"2432*1208","cnt":4},{"prov":"上海","city":"上海","mall":"Pick-Dol星趣场（静安大悦城店）","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"上海","city":"上海","mall":"上海宝杨宝龙广场","date":"12.4","time":"10:00-22:00","freq":"当天确定","pos":"①室内北中庭②室外商业街","addr":"上海市宝山区同济路669号","size":"8000*4500\r5867*1800","cnt":2},{"prov":"福建","city":"厦门","mall":"厦门大西洋天虹广场","date":"12.4","time":"9:00-22:00","freq":"1-3min/次","pos":"二楼","addr":"福建省厦门市思明区鹭江道大西洋天虹商场","size":"610*220","cnt":1},{"prov":"福建","city":"厦门","mall":"厦门集美万达广场","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"福建","city":"漳州","mall":"漳州天虹购物中心","date":"12.4","time":"10:00-22:00","freq":"4-5min/次","pos":"中庭","addr":"漳州市芗城区南昌中路 39 号","size":"1080*1920","cnt":1},{"prov":"福建","city":"泉州","mall":"泉州晋江万达广场","date":"12.4","time":"10:00-22:00","freq":"4-6min/轮","pos":"5号门室内","addr":"福建省晋江市世纪大道888号","size":"3840*1080","cnt":1},{"prov":"福建","city":"福州","mall":"福州宝龙广场","date":"12.4","time":"10:00-22:00","freq":"当天确定","pos":"①L1中庭②L2丫霸街中庭③L1丫霸街入口","addr":"福州市台江区工业路192号","size":"6426*3403\r6426*3403\r1088*640","cnt":3},{"prov":"辽宁","city":"大连","mall":"大连沃特时尚广场","date":"11.28","time":"9:00-21:00","freq":"20-30s/次","pos":"正门入口上方","addr":"辽宁省大连市甘井子区中华西路21号沃特时尚广场","size":"5112*1104","cnt":1},{"prov":"辽宁","city":"大连","mall":"大连普兰店万达广场","date":"12.4","time":"10:00-20:00","freq":"3-4min/次","pos":"广场一号门外","addr":"辽宁省大连市普兰店区振兴街68号万达广场","size":"2834*2182（4:3）","cnt":1},{"prov":"辽宁","city":"抚顺","mall":"抚顺顺城万达广场","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"辽宁","city":"营口","mall":"营口鲅鱼万达广场","date":"12.4","time":"10:00-21:00","freq":"10min/轮","pos":"中庭舞台","addr":"营口鲅鱼圈区蝴蝶泉路45号（万达广场）","size":"1920*1080","cnt":1},{"prov":"辽宁","city":"沈阳","mall":"沈阳皇姑万象汇","date":"12.4","time":"10:00-21:00","freq":"不定","pos":"1号门上方","addr":"沈阳市皇姑区崇山东路18号(北塔地铁站A口步行220米)","size":"1696*656","cnt":1},{"prov":"辽宁","city":"沈阳","mall":"沈阳龙之梦super时尚奥莱","date":"12.4","time":"9：30-21：00","freq":"3min/次","pos":"商场东庭","addr":"沈阳市大东龙之梦SUPER时尚奥莱","size":"980*1800","cnt":1},{"prov":"贵州","city":"贵阳","mall":"花果园购物中心","date":"12.4","time":"11:00-20:00","freq":"30min/次","pos":"花果园购物中心L1中心广场","addr":"贵阳市南明区花果园大街1号(松花路地铁站B口步行270米)","size":"2160*1440","cnt":1},{"prov":"贵州","city":"贵阳","mall":"贵阳龙湾万达广场","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"贵州","city":"贵阳","mall":"贵阳THE ONE购物中心","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":32},{"prov":"贵州","city":"贵阳","mall":"贵阳印象城","date":"12.4","time":"10:00-22:00","freq":"2-4min/次","pos":"L2风景屏","addr":"贵州省贵阳市云岩区北京西路与金阳南路交叉口","size":"1920*1080","cnt":1},{"prov":"贵州","city":"六盘水","mall":"六盘水万达广场","date":"12.4","time":"11:30-21:00（推荐下午5点后打卡）","freq":"6min/次","pos":"1号门广场","addr":"六盘水市钟山区碧云路与麒麟路交汇处六盘水万达广场一号门","size":"1920*1080","cnt":1},{"prov":"贵州","city":"遵义","mall":"遵义中建拾光茂","date":"12.4","time":"18:00-21:00","freq":"不固定","pos":"1号门","addr":"遵义市红花岗区合兴大道中建幸福广场1号楼集中商业","size":"4082*4422","cnt":1},{"prov":"安徽","city":"合肥","mall":"滨湖银泰百货","date":"11.28","time":"10:00-21:00","freq":"10-20min/轮","pos":"一楼中庭","addr":"合肥市包河区云谷路滨湖银泰百货一楼中庭上方大屏","size":"1920*1080","cnt":1},{"prov":"安徽","city":"合肥","mall":"政务银泰百货","date":"11.28","time":"10:00-21:00","freq":"10-20min/轮","pos":"一楼中庭","addr":"合肥市蜀山区潜山路190号","size":"1920*1080","cnt":1},{"prov":"安徽","city":"合肥","mall":"合肥包河万达广场","date":"11.28","time":"10:00-21:30","freq":"15min/次","pos":"一楼中庭","addr":"合肥市包河区马鞍山路130号包河万达广场","size":"3840*1080","cnt":1},{"prov":"安徽","city":"合肥","mall":"合肥绿地大融城","date":"12.4","time":"13:00-19:00","freq":"霸屏","pos":"一楼舞台大屏","addr":"合肥南二环路与宿松路交汇处","size":"1920x1080","cnt":1},{"prov":"安徽","city":"蚌埠","mall":"蚌埠淮上万达广场","date":"12.4","time":"9:30-21:30","freq":"4min/轮","pos":"一号门外广场","addr":"安徽省蚌埠市淮上区淮上大道2888号","size":"1920*1080","cnt":1},{"prov":"安徽","city":"六安","mall":"六安金安万达广场","date":"12.4","time":"10:00-9:30","freq":"12min/轮","pos":"2号门外广场","addr":"安徽省六安市金安区皋城路与八公山北路交汇处","size":"1920*1080","cnt":1},{"prov":"安徽","city":"阜阳","mall":"阜阳颍泉万达广场","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"安徽","city":"芜湖","mall":"芜湖镜湖万达广场","date":"12.4","time":"9:30-21:30","freq":"8-10min/次","pos":"华为进2号中庭","addr":"镜湖区赭山东路1号","size":"8704*960","cnt":1},{"prov":"安徽","city":"铜陵","mall":"铜陵铜官万达广场","date":"12.4","time":"10:30-21:30","freq":"1-15min/次","pos":"2号门外广场","addr":"铜陵市石城大道599号","size":"1920*1080","cnt":1},{"prov":"安徽","city":"淮北","mall":"淮北吾悦广场","date":"12.4","time":"10:00-21:30","freq":"3min/次","pos":"①外场大屏②内场中庭③内场空中竖屏（影院门口）","addr":"淮北市龙山路与学院路交口","size":"①1200*670②1184*416③728*1280","cnt":3},{"prov":"湖南","city":"长沙","mall":"长沙汇景城","date":"12.4","time":"10:00-22:00","freq":"当天确定","pos":"①户外大屏②中庭大屏","addr":"湖南省长沙市天心区湘江中路与白沙路交汇处东北","size":"横：16:9 竖：19:6","cnt":2},{"prov":"湖南","city":"长沙","mall":"Pick-Dol（奇米谷追星馆店）","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"湖南","city":"长沙","mall":"龙湖长沙洋湖天街","date":"11.28","time":"10:00-22:00","freq":"2min/次 每日240-300次","pos":"全场大屏（69","addr":"湖南省长沙市岳麓区先导路69号","size":"1️⃣864*435\r2️⃣568*136 168*126\r3️⃣1080*1920\r4️⃣2560*1440\r5️⃣1440*2560","cnt":69},{"prov":"湖南","city":"株洲","mall":"株洲云龙万达广场","date":"12.4","time":"10:00-12:00 14:00-21:30","freq":"4min/轮","pos":"一号门外，星巴克侧上方","addr":"株洲市石峰区云龙大道589号","size":"1920*1080","cnt":1},{"prov":"湖南","city":"永州","mall":"永州进贤路万达广场","date":"12.4","time":"10:00-21:00","freq":"12min/轮","pos":"①一号门外广场②一号门中庭","addr":"湖南省永州市冷水滩区永州大道与中兴路交叉路口东南角(星城花园对面)","size":"1920*1080","cnt":2},{"prov":"湖南","city":"张家界","mall":"步步高百货张家界店","date":"12.4","time":"早7:00-12:00/午15:30-21:00","freq":"不定","pos":"外广场大屏","addr":"湖南省张家界市永定区崇文街维港十字街步步高百货","size":"3800*1000","cnt":1},{"prov":"湖南","city":"娄底","mall":"娄底天虹商场","date":"12.4","time":"9:30-21:30","freq":"5min/次","pos":"商场中厅","addr":"万豪城市广场娄底天虹商场","size":"1920*1080","cnt":1},{"prov":"湖南","city":"常德","mall":"常德汉寿万达广场","date":"12.4","time":"10:00-21:30","freq":"4-6min/轮","pos":"①1号门外广场②中庭","addr":"湖南省常德市汉寿县菱湖路与冯家湾路交叉口东160米","size":"1920*1080","cnt":2},{"prov":"湖北","city":"武汉","mall":"武汉银泰创意城","date":"12.4","time":"10:00-21:00","freq":"当天确定","pos":"4F舞台区","addr":"武汉市洪山区珞瑜路35号","size":"3805*2560","cnt":1},{"prov":"湖北","city":"武汉","mall":"武汉金银湖万达广场","date":"12.4","time":"18:00-闭店","freq":"5min/次","pos":"1号门外广场","addr":"湖北省武汉市东西湖区金山大道1239号","size":"1920*1080","cnt":1},{"prov":"湖北","city":"武汉","mall":"武汉菱角湖万达广场","date":"11.28","time":"11:00-21:30","freq":"4min/轮","pos":"①1号门外广场②中庭","addr":"武汉市江汉区唐家墩路5号","size":"①1929*1080②3840*1080","cnt":2},{"prov":"湖北","city":"孝感","mall":"孝感银泰百货","date":"12.4","time":"10:00-21:30","freq":"不确定","pos":"一楼大屏","addr":"湖北省孝感市孝南区天仙北路26号","size":"1728*480","cnt":1},{"prov":"湖北","city":"荆门","mall":"荆门银泰百货","date":"12.4","time":"10:00-21:30","freq":"不确定","pos":"一楼中庭","addr":"荆门市东宝区象山一路6号","size":"1920*1080","cnt":1},{"prov":"湖北","city":"仙桃","mall":"仙桃银泰百货","date":"12.4","time":"9:00-12:00 14:30-22:00","freq":"不确定","pos":"外立面大屏","addr":"湖北省仙桃市沔阳大道43号","size":"1920*1080","cnt":1},{"prov":"湖北","city":"襄阳","mall":"襄阳天元City Park","date":"12.4","time":"10:00-22:00","freq":"不确定","pos":"一楼一号中庭","addr":"湖北省襄阳市樊城区定中门街道人民路天元·四季城","size":"1920*1080","cnt":1},{"prov":"湖北","city":"随州","mall":"随州银泰百货","date":"12.4","time":"9:30-21:30","freq":"不确定","pos":"水西门店外立面大屏","addr":"湖北省随州市曾都区交通大道与文峰大道交叉口东南150米","size":"1920*1080","cnt":1},{"prov":"湖北","city":"黄石","mall":"黄石团城山万达广场","date":"12.4","time":"10:00-22:00","freq":"4-6min/轮","pos":"1号门外屏","addr":"黄石市下陆区广州路30号","size":"1072*688","cnt":1},{"prov":"湖北","city":"恩施","mall":"恩施九立方购物中心","date":"12.4","time":"15:00-21:00","freq":"5-10min/轮","pos":"正大门马路口","addr":"湖北省恩施市东风大道276号","size":"1056*1200","cnt":1},{"prov":"海南","city":"海口","mall":"海口友谊国贸城","date":"12.4","time":"10：00-22：00","freq":"3-5min/次","pos":"北区二楼大步梯","addr":"海南省海口市龙华区金贸街道玉沙路21号","size":"3584*1408","cnt":1},{"prov":"广西","city":"南宁","mall":"南宁五象万象汇","date":"12.4","time":"10:00-22:30","freq":"200次","pos":"商场1层连廊正上方","addr":"南宁市良庆区平乐大道37号","size":"2176*1216","cnt":1},{"prov":"广西","city":"南宁","mall":"南宁新朝阳商业广场","date":"11.28","time":"10:00-21:40","freq":"5min/次","pos":"三号门主入口旁","addr":"南宁市兴宁区民生街道朝阳路38号","size":"4096*2304","cnt":1},{"prov":"广西","city":"钦州","mall":"年年丰广场","date":"12.4","time":"10:30-22:30","freq":"10min/轮","pos":"1号门入口两侧","addr":"钦州市钦南区年年丰广场","size":"1080*1920","cnt":2},{"prov":"广西","city":"贵港","mall":"贵港港北万达广场","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"广西","city":"桂林","mall":"桂林万福广场","date":"11.28","time":"17:00-21:00","freq":"300次","pos":"1号楼","addr":"桂林市象山区凯风路90号","size":"2100*1200","cnt":1},{"prov":"河北","city":"石家庄","mall":"石家庄长安年轻力中心","date":"11.28","time":"日落-21:30","freq":"15-20min/次","pos":"LOGO旁边","addr":"石家庄市中山路与青园街交叉口","size":"1920x1080","cnt":1},{"prov":"河北","city":"沧州","mall":"沧州任丘万达广场","date":"12.4","time":"10：00-21：30","freq":"4-5min/次","pos":"①外广场led②室内舞台屏幕","addr":"河北省沧州市任丘市北站西路与昆仑南道交叉口","size":"1920*1080/3:6","cnt":2},{"prov":"河北","city":"邢台","mall":"邢台囊都万达广场","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"河北","city":"邯郸","mall":"邯郸武安新世纪","date":"12.4","time":"9:30-20:00","freq":"80次以上","pos":"商场内负一楼电子大屏","addr":"河北省邯郸市武安市中兴路939号","size":"1920*1080","cnt":1},{"prov":"河北","city":"唐山","mall":"京东电器城市旗舰店","date":"12.4","time":"10:00-22:00","freq":"10-15min/轮","pos":"门店一层中庭","addr":"河北省唐山市路南区建设南路19号1至3层","size":"1664*2816","cnt":1},{"prov":"河北","city":"保定","mall":"保定未来石万达广场","date":"11.28","time":"10:00-22:00","freq":"15min/次","pos":"一层中庭","addr":"保定市莲池区七一东路保定未来石万达广场","size":"512*1088（十连","cnt":1},{"prov":"河北","city":"保定","mall":"保定嘉德万达广场","date":"12.4","time":"11:00-21：00","freq":"12min/次","pos":"外广场1号门","addr":"保定市莲池区三丰东路嘉德万达广场","size":"1920x1080","cnt":1},{"prov":"青海","city":"西宁","mall":"西宁力盟商业巷步行街","date":"12.4","time":"10:00-21:30","freq":"1000次以上","pos":"力盟商业巷步行街 GAP广场","addr":"青海省西宁市力盟商业巷步行街","size":"1920*1080","cnt":1},{"prov":"内蒙古","city":"呼和浩特","mall":"呼和浩特滨海广场","date":"12.4","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"甘肃","city":"兰州","mall":"兰州城关万达广场","date":"11.28","time":"10:00-22:00","freq":"4min/轮","pos":"二号圆厅","addr":"兰州市城关区天水北路68号","size":"3840*2160","cnt":1},{"prov":"新疆","city":"乌鲁木齐","mall":"乌鲁木齐高新吾悦花园城","date":"12.4-12.5","time":"10:00-22:00","freq":"当天确定","pos":"2号门大中庭","addr":"新疆维吾尔自治区乌鲁木齐市新市区喀什东路1111号","size":"","cnt":1},{"prov":"新疆","city":"乌鲁木齐","mall":"乌鲁木齐经开万达广场","date":"11.28","time":"12：00-21：00","freq":"15s/100次左右","pos":"广场一号门大屏","addr":"新疆维吾尔自治区乌鲁木齐市沙依巴克区经济技术开发区玄武湖路999号","size":"1920x1080","cnt":1},{"prov":"新疆","city":"喀什","mall":"喀什古城万达广场","date":"12.4","time":"11:00-23:00","freq":"2min/次","pos":"B1室内屏","addr":"新疆维吾尔自治区喀什地区喀什市都维路41号","size":"3072*1216","cnt":1},{"prov":"云南","city":"昆明","mall":"昆明砂之船奥莱","date":"11.28","time":"11:00-22:00","freq":"5-10min/轮","pos":"中央广场大屏","addr":"云南省昆明市安宁市太平新城奥特莱斯大道181号","size":"1344*2496竖","cnt":1},{"prov":"云南","city":"曲靖","mall":"曲靖麒麟万达广场","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"黑龙江","city":"哈尔滨","mall":"哈尔滨新一百购物中心","date":"12.4","time":"10:00-21:00","freq":"15min/次","pos":"商场内一楼中庭大屏","addr":"黑龙江省哈尔滨市道里区石头道街118号","size":"1920*1080","cnt":1},{"prov":"黑龙江","city":"哈尔滨","mall":"哈东万达广场","date":"11.28","time":"9:00-21:00","freq":"15min/次","pos":"三楼蜜雪冰城对面","addr":"哈尔滨香坊区香福路哈东万达广场","size":"1920*1440","cnt":1},{"prov":"吉林","city":"长春","mall":"长春万达茂","date":"12.4-12.5","time":"9:30-21:30","freq":"2-4min/次","pos":"①一号门外广场②二号厅内异形屏","addr":"","size":"①1929*1080②3840*1280","cnt":2},{"prov":"吉林","city":"通化","mall":"通化东昌万达广场","date":"","time":"","freq":"","pos":"","addr":"","size":"","cnt":0},{"prov":"吉林","city":"吉林","mall":"吉林中东新生活","date":"12.4","time":"9:00-21:00","freq":"1-5min/次","pos":"①中庭大屏②5号门主门进门大屏③小象王国舞台④小象王国玻璃舞台⑤18号门舞台⑥18号门舞台背屏","addr":"吉林省吉林市船营区越山路378号","size":"1️⃣尺寸：9280*3840\r分辨率：3712*1536\r2️⃣尺寸：8000*3520\r分辨率：3200*1408\r3️⃣：1920*1080\r4️⃣尺寸：3840*2720\r分辨率：768*554\r5️⃣尺寸：6400*3520\r分辨率：2560*1408\r6️⃣尺寸：8320*800\r分辨率：3328*320","cnt":6}];
+
+/* ---------- KPI ---------- */
+const totalMall = DATA.length;
+const totalScreen = DATA.reduce((s,r)=>s+(Number(r.cnt)||0),0);
+const provSet = new Set(DATA.map(r=>r.prov).filter(Boolean));
+const citySet = new Set(DATA.map(r=>r.city).filter(Boolean));
+const multi = DATA.filter(r=>(Number(r.cnt)||0)>1).length;
+const kpis=[
+  {k:'商场总数',v:totalMall,n:'覆盖 '+'各省市自治区',c:''},
+  {k:'大屏总数量',v:totalScreen,n:'平均 '+(totalScreen/totalMall).toFixed(1)+' 块/商场',c:'gold'},
+  {k:'覆盖省份',v:provSet.size,n:'省级行政区',c:'rose'},
+  {k:'覆盖城市',v:citySet.size,n:'地级市及以上',c:'cyan'},
+  {k:'多屏商场',v:multi,n:'屏数 > 1 的商场',c:'rose'},
+];
+document.getElementById('kpis').innerHTML = kpis.map(o=>
+  `<div class="kpi ${o.c}"><div class="k">${o.k}</div><div class="v">${o.v}</div><div class="n">${o.n}</div></div>`
+).join('');
+
+/* ---------- 聚合 ---------- */
+const byProv={}, byProvScreen={}, byCity={}, byMall=[], byDate={};
+DATA.forEach(r=>{
+  const c=Number(r.cnt)||0;
+  if(r.prov){ byProv[r.prov]=(byProv[r.prov]||0)+1; byProvScreen[r.prov]=(byProvScreen[r.prov]||0)+c; }
+  if(r.city){ byCity[r.city]=(byCity[r.city]||0)+1; }
+  byMall.push({name:r.mall,city:r.city,prov:r.prov,cnt:c});
+  const d=r.date||'未标注';
+  let key = /12\.4/.test(d) ? '12.4' : (/11\.2[5789]/.test(d) ? '11.28' : (d==='未标注'?'未标注':'待定'));
+  byDate[key]=(byDate[key]||0)+1;
+});
+const arrProv=Object.entries(byProv).sort((a,b)=>a[1]-b[1]).slice(-18);
+const arrProvS=Object.entries(byProvScreen).sort((a,b)=>a[1]-b[1]).slice(-15);
+const arrCity=Object.entries(byCity).sort((a,b)=>b[1]-a[1]).slice(0,12);
+const arrMall=byMall.sort((a,b)=>b.cnt-a.cnt).slice(0,12).reverse();
+
+const AX={axisLine:{lineStyle:{color:'rgba(120,160,255,.25)'}},axisLabel:{color:'#8fa3cc',fontSize:11},
+  splitLine:{lineStyle:{color:'rgba(120,160,255,.09)'}}};
+const TIP={backgroundColor:'rgba(12,18,38,.94)',borderColor:'rgba(120,160,255,.35)',
+  textStyle:{color:'#e8eeff',fontSize:12}};
+
+function bar(el,labels,vals,color,unit){
+  const ch=echarts.init(document.getElementById(el));
+  ch.setOption({
+    grid:{left:6,right:34,top:8,bottom:4,containLabel:true},
+    tooltip:{trigger:'axis',...TIP,axisPointer:{type:'shadow'},valueFormatter:v=>v+' '+unit},
+    xAxis:{type:'value',...AX},
+    yAxis:{type:'category',data:labels,...AX,axisLabel:{color:'#c3d2f0',fontSize:11.5}},
+    series:[{type:'bar',data:vals,barWidth:'56%',
+      itemStyle:{borderRadius:[0,4,4,0],
+        color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:color[0]},{offset:1,color:color[1]}])},
+      label:{show:true,position:'right',color:'#dfe9ff',fontSize:11,formatter:'{c}'}}]
+  });
+  return ch;
+}
+const charts=[];
+charts.push(bar('cProv',arrProv.map(d=>d[0]),arrProv.map(d=>d[1]),['rgba(79,216,255,.35)','#4fd8ff'],'家'));
+charts.push(bar('cProvScreen',arrProvS.map(d=>d[0]),arrProvS.map(d=>d[1]),['rgba(255,215,122,.35)','#ffd77a'],'块'));
+charts.push(bar('cCity',arrCity.map(d=>d[0]).reverse(),arrCity.map(d=>d[1]).reverse(),['rgba(255,111,156,.3)','#ff6f9c'],'家'));
+charts.push(bar('cMall',arrMall.map(d=>d.name),arrMall.map(d=>d.cnt),['rgba(167,139,255,.35)','#a78bff'],'块'));
+
+/* 日期环形图 */
+const dOrder=['12.4','11.28','未标注','待定'];
+const dColor={'12.4':'#ff6f9c','11.28':'#ffd77a','未标注':'#5d7bb8','待定':'#4fd8ff'};
+const dData=dOrder.filter(k=>byDate[k]).map(k=>({name:k,value:byDate[k],itemStyle:{color:dColor[k]}}));
+const cD=echarts.init(document.getElementById('cDate'));
+cD.setOption({
+  tooltip:{trigger:'item',...TIP,formatter:'{b}：{c} 家（{d}%）'},
+  legend:{bottom:0,textStyle:{color:'#9fb4e0',fontSize:11},itemWidth:9,itemHeight:9},
+  series:[{type:'pie',radius:['46%','70%'],center:['50%','44%'],
+    itemStyle:{borderColor:'#0b1024',borderWidth:2},
+    label:{color:'#dbe6ff',fontSize:11,formatter:'{b}\n{c}'},
+    labelLine:{lineStyle:{color:'rgba(120,160,255,.4)'}},
+    data:dData}]
+});
+charts.push(cD);
+
+/* ---------- 表格 ---------- */
+const provs=[...new Set(DATA.map(r=>r.prov).filter(Boolean))].sort();
+const selProv=document.getElementById('selProv');
+selProv.innerHTML='<option value="">全部省份</option>'+provs.map(p=>`<option value="${p}">${p}</option>`).join('');
+
+let sortKey='cnt';
+function dateTag(d){
+  const s=d||'未标注';
+  if(/12\.4/.test(s)) return `<span class="tag t124">12.4</span>`;
+  if(/11\.2[5789]/.test(s)) return `<span class="tag t1128">11.28</span>`;
+  if(s==='未标注') return `<span class="tag tnone">未标注</span>`;
+  return `<span class="tag tnone">${s}</span>`;
+}
+function render(){
+  const q=document.getElementById('q').value.trim().toLowerCase();
+  const p=selProv.value, dp=document.getElementById('selDate').value;
+  let list=DATA.filter(r=>{
+    if(p && r.prov!==p) return false;
+    if(dp){
+      const d=r.date||'未标注';
+      const key=/12\.4/.test(d)?'12.4':(/11\.2[5789]/.test(d)?'11.28':(d==='未标注'?'未标注':'待定'));
+      if(key!==dp) return false;
+    }
+    if(q){
+      const hay=[r.prov,r.city,r.mall,r.addr,r.pos,r.size].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  if(sortKey==='cnt') list.sort((a,b)=>(Number(b.cnt)||0)-(Number(a.cnt)||0));
+  else if(sortKey==='prov') list.sort((a,b)=>(a.prov||'').localeCompare(b.prov||'','zh')||(Number(b.cnt)||0)-(Number(a.cnt)||0));
+  else list.sort((a,b)=>(a.date||'zz').localeCompare(b.date||'zz','zh'));
+
+  const sum=list.reduce((s,r)=>s+(Number(r.cnt)||0),0);
+  document.getElementById('sumCnt').textContent=sum;
+  document.getElementById('cntInfo').innerHTML=`筛选出 <b style="color:#ffd77a">${list.length}</b> 家商场 / ${new Set(list.map(r=>r.prov)).size} 个省份`;
+  document.getElementById('tbody').innerHTML=list.map((r,i)=>`
+    <tr>
+      <td style="color:#68789c">${i+1}</td>
+      <td>${r.prov||'-'}</td>
+      <td class="city">${r.city||'-'}</td>
+      <td class="mall">${r.mall}</td>
+      <td>${dateTag(r.date)}</td>
+      <td style="color:#b9cbff">${r.time||'<span style="color:#5d6d92">未标注</span>'}</td>
+      <td style="color:#b9cbff">${r.freq||'<span style="color:#5d6d92">-</span>'}</td>
+      <td class="cntpill">${Number(r.cnt)||0}</td>
+      <td>
+        <div style="color:#c3d2f0;font-size:11.5px;line-height:1.55">${(r.pos||'-').replace(/\n/g,' ')}</div>
+        <div class="addr">${(r.addr||'').trim()||''}${r.size?' &nbsp;·&nbsp; 尺寸 '+r.size.replace(/\n/g,' / '):''}</div>
+      </td>
+    </tr>`).join('');
+}
+document.getElementById('q').addEventListener('input',render);
+selProv.addEventListener('change',render);
+document.getElementById('selDate').addEventListener('change',render);
+document.querySelectorAll('#sortChips .chip').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('#sortChips .chip').forEach(x=>x.classList.remove('on'));
+  c.classList.add('on'); sortKey=c.dataset.sort; render();
+}));
+render();
+
+window.addEventListener('resize',()=>charts.forEach(c=>c.resize()));
+</script>
+</body>
+</html>
